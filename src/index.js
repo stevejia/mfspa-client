@@ -1,6 +1,4 @@
 import ReactDom from "react-dom";
-
-import Mfspa from "./mfspa";
 import "antd/dist/antd.css";
 import "./index.less";
 
@@ -12,8 +10,6 @@ import App from "./app";
 // document.body.innerHTML = "3333333444a";
 
 console.log("33333322211122223331");
-const mfspaIns = new Mfspa(null);
-window.mfspa = mfspaIns;
 const testCCCCC = "testCCCCccc";
 var testCCCCCCc = "99999";
 
