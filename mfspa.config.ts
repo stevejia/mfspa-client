@@ -1,3 +1,3 @@
 export default {
-  appPattern: "teatA",
+  appPattern: "testA",
 };

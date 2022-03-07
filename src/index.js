@@ -1,25 +1,14 @@
 import ReactDom from "react-dom";
 import "antd/dist/antd.css";
 import "./index.less";
-
-// import MfspaLayout from "./mfspa/layout";
-
-import { Button } from "antd";
-import App from "./app";
-
-// document.body.innerHTML = "3333333444a";
-
-console.log("33333322211122223331");
-const testCCCCC = "testCCCCccc";
-var testCCCCCCc = "99999";
-
-// if (debugJson) {
-//   const debugDiv = document.createElement("div");
-//   debugDiv.innerHTML = `<div style="position: absolute; top: 0; left: calc( 50% - 50px); width: 100px, height: 50px; background: red;">调试模式</div>`;
-//   document.body.appendChild(debugDiv);
-// }
-
-// console.log("33333333333");
-
+import App from "./app.tsx";
+console.log(window.mfspa);
+console.log(35354);
+window.addHistoryListener("historyChange", function (d) {
+  console.log("history change", window.history.state);
+});
 ReactDom.render(<App />, document.querySelector("#mfspa-root"));
-module?.hot?.accept();
+console.log(9999);
+if (module?.hot?.accept) {
+  module?.hot?.accept();
+}
