@@ -6,7 +6,10 @@ const hotMiddleware = require("webpack-hot-middleware");
 const mime = require("mime");
 const compiler = webpack(webpackConfig);
 const getEnv = require("./tools/getEnv");
-
+const request = require("request");
+const opn = require("opn");
+// const { appPattern: appName } = require("../mfspa.config");
+const appName = "testA";
 const env = getEnv();
 console.log(env);
 if (env !== "dev") {
@@ -18,7 +21,6 @@ if (env !== "dev") {
     console.log("打包完成");
     process.exit();
   });
-  return;
 }
 const path = require("path");
 const cwd = process.cwd();
@@ -66,5 +68,83 @@ app.use(hotMiddleware(compiler));
 //     res.end();
 //   });
 // });
-app.listen(8055);
-console.log("listen on 8055");
+let tryTimes = 10;
+const duration = 1000;
+let port = 8055;
+
+const listen = () => {
+  return new Promise((resolve, reject) => {
+    const server = app.listen(port);
+    server.on("listening", () => {
+      resolve(`app listen at http://localhost:${port}`);
+    });
+    server.on("error", (err) => {
+      if (err.code !== "EADDRINUSE") {
+        reject(err);
+      }
+      port++;
+      tryTimes--;
+      if (tryTimes > 0) {
+        setTimeout(() => {
+          server.listen(port);
+        }, duration);
+      } else {
+        reject(err);
+      }
+    });
+  });
+};
+
+const compilerDone = (callback) => {
+  compiler.hooks.done.tap("done", (stats) => {
+    if (
+      stats.compilation.errors &&
+      stats.compilation.errors.length &&
+      env !== "dev"
+    ) {
+      console.error(stats.compilation.errors);
+      process.exit(1);
+    }
+    console.log("build sucess");
+    setTimeout(() => {
+      callback && callback();
+    }, duration);
+  });
+};
+
+const updateDebugConfig = async () => {
+  const config = {
+    appName,
+    url: `http://localhost:${port}/webpack/dist/index.js`,
+  };
+  await request({
+    url: "http://localhost:8044/api/v1/debugconfig/update",
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(config),
+  });
+};
+let opened = false;
+const main = async () => {
+  const result = await listen().catch((err) => {
+    console.error(err);
+  });
+  compilerDone(async () => {
+    console.clear();
+    await updateDebugConfig();
+    console.log(result);
+    if (!opened) {
+      opn(
+        "http://www.mfspa.com/app/testA/module1/page1/detail?test=3333333333",
+        {
+          app: ["chrome"],
+        }
+      );
+      opened = true;
+    }
+  });
+};
+
+main();
