@@ -3,17 +3,18 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const miniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
 const cwd = process.cwd();
+const { natDomain } = require("../../../mfspa.config");
 module.exports = {
   entry: [
     "webpack/hot/dev-server",
-    "webpack-hot-middleware/client?path=http://localhost:8055/__webpack_hmr",
+    `webpack-hot-middleware/client?path=${natDomain}/__webpack_hmr`,
     "./src/index.js",
   ],
   mode: "development",
   output: {
     filename: "index.js",
     path: path.join(cwd, "/dist"),
-    publicPath: "http://localhost:8055/webpack/dist",
+    publicPath: `${natDomain}/webpack/dist`,
   },
   module: {
     rules: [
