@@ -115,14 +115,20 @@ const readDir = (curPath) => {
   if (files.length > 0) {
     files.forEach((fileName) => {
       const filePath = path.join(curPath, fileName);
+      const relativePath = getRelativePath(sourceDir, filePath);
       const fileStat = fs.statSync(filePath);
       if (fileStat.isDirectory()) {
-        zip.folder(fileName);
+        zip.folder(relativePath);
         readDir(filePath);
         return;
       }
-      zip.file(fileName, fs.readFileSync(filePath));
+      zip.file(relativePath, fs.readFileSync(filePath));
     });
   }
 };
+
+const getRelativePath = (baseDir, fullPath) => {
+  return fullPath.split(baseDir)[1];
+};
+
 module.exports = upload;

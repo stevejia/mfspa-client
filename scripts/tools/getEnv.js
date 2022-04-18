@@ -6,7 +6,7 @@ const getEnv = () => {
   if (envCmd && envCmd.indexOf("--") > -1) {
     env = envCmd.split("--")[1];
   }
-  return "prod" || env;
+  return env;
 };
 
 module.exports = getEnv;

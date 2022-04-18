@@ -9,7 +9,7 @@ class Module1Page1Detail extends React.Component<Module1Page1DetailProps, any> {
   render() {
     return (
       <div>
-        Module1 Page1 Detail133344333333aaaaaaaaaaaaaaa
+        Module1 Page1 Detail133344333333aaaaBVBB
         <div
           onClick={() => {
             this.props.navigate(
