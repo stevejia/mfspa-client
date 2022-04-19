@@ -2,13 +2,18 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const miniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
 const cwd = process.cwd();
+
+const { getNextVersion } = require("../../tools/updateVersion");
+
+const { appPattern } = require("../../../mfspa.config");
+const nextVersion = getNextVersion();
 module.exports = {
   entry: [path.join(cwd, "src/index.js")],
   mode: "production",
   output: {
     filename: "index.js",
     path: path.join(cwd, "/dist"),
-    publicPath: "/",
+    publicPath: `http://cdn.mfspa.cc/app/${appPattern}/@${nextVersion}/`,
   },
   module: {
     rules: [

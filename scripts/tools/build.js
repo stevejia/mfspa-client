@@ -1,6 +1,6 @@
 const webpackConfig = require("../webpack/webpack.config");
 const mfspaConfig = require("../../mfspa.config");
-const updateVersion = require("../tools/updateVersion");
+const { updateVersion } = require("../tools/updateVersion");
 const upload = require("../tools/upload");
 const webpack = require("webpack");
 const compiler = webpack(webpackConfig);

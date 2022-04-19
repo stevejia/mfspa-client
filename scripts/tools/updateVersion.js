@@ -21,4 +21,24 @@ const updateVersion = () => {
   );
 };
 
-module.exports = updateVersion;
+const getVersion = () => {
+  const cwd = process.cwd();
+  const packageJsonFilePath = path.join(cwd, "package.json");
+  const packageJsonStr = fs.readFileSync(packageJsonFilePath, "utf-8");
+  const packageJson = JSON.parse(packageJsonStr);
+  const { version } = packageJson;
+  return version;
+};
+
+const getNextVersion = (currentVersion = null) => {
+  if (!currentVersion) {
+    currentVersion = getVersion();
+  }
+  const verList = currentVersion.split(".");
+  let lastVer = parseInt(verList.pop());
+  ++lastVer;
+  verList.push(lastVer);
+  return verList.join(".");
+};
+
+module.exports = { updateVersion, getVersion, getNextVersion };
