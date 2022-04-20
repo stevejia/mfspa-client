@@ -1,24 +1,15 @@
-import {
-  BrowserRouter as Router,
-  Route,
-  RouteObject,
-  Routes,
-  useRoutes,
-} from "react-router-dom";
-import module1Routes from "./router.module1";
-import module2Routes from "./router.module2";
-
+import React from "react";
 import config from "../../mfspa.config";
-import { clone } from "../utils";
-import React, { Fragment } from "react";
 import { renderRoutes } from "../libs/mfspa-router";
 import { MfspaRouteObject } from "../libs/mfspa-router/type";
+import module1Routes from "./router.module1";
+import privilegesRoutes from "./router.privileges";
 
 const routePrefix = `/app/${config.appPattern}`;
 const allRoutes: MfspaRouteObject[] = [
   {
     path: routePrefix,
-    children: [module1Routes],
+    children: [module1Routes, privilegesRoutes],
   },
 ];
 
@@ -84,3 +75,4 @@ const RenderRoutes = (): React.ReactElement => {
 };
 
 export { RenderRoutes, genRoutes };
+

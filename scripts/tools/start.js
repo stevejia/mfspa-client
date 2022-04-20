@@ -88,18 +88,27 @@ const compilerDone = (callback) => {
 };
 
 const updateDebugConfig = async () => {
-  const config = {
-    appName,
-    url: `${natDomain}/webpack/dist/index.js`,
-  };
-  await request({
-    url: `${nodeHost}api/v1/debugconfig/update`,
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(config),
+  return new Promise((resolve, reject)=> {
+    const config = {
+      appName,
+      url: `${natDomain}/webpack/dist/index.js`,
+    };
+    request({
+      url: `${nodeHost}api/v1/debuginfo/update`,
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(config),
+    }, (error, response) => {
+      if(error){
+        reject(error);
+        return;
+      }
+      resolve(response);
+    });
   });
+  
 };
 let opened = false;
 const start = async () => {
