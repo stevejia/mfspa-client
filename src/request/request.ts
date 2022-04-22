@@ -22,7 +22,7 @@ class MfspaRequest {
               method,
               headers: {
                 "Content-Type":
-                  "application/x-www-form-urlencoded;charset=UTF-8",
+                  "application/x-www-form-urlencoded",
               },
               mode: "cors",
               body: queryStringify(params),

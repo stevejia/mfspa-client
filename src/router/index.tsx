@@ -2,14 +2,15 @@ import React from "react";
 import config from "../../mfspa.config";
 import { renderRoutes } from "../libs/mfspa-router";
 import { MfspaRouteObject } from "../libs/mfspa-router/type";
-import module1Routes from "./router.module1";
-import privilegesRoutes from "./router.privileges";
+// import module1Routes from "./router.module1";
+// import privilegesRoutes from "./router.privileges";
+import resourcesRoutes from "./router.resources";
 
 const routePrefix = `/app/${config.appPattern}`;
 const allRoutes: MfspaRouteObject[] = [
   {
     path: routePrefix,
-    children: [module1Routes, privilegesRoutes],
+    children: [resourcesRoutes],
   },
 ];
 
@@ -75,4 +76,3 @@ const RenderRoutes = (): React.ReactElement => {
 };
 
 export { RenderRoutes, genRoutes };
-

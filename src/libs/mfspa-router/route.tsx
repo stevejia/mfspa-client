@@ -9,13 +9,22 @@ class MfspaRoute extends React.Component<MfspaRouteProps, any> {
     console.log(path);
     window.history.pushState({ path: path }, "", path);
   };
+
   render() {
+    const env = process.env.NODE_ENV;
     const { data, matched } = this.props;
-    return matched ? (
+    console.log("route data", data);
+    if (!matched) {
+      return null;
+    }
+    if (env === "development") {
+      return <data.component navigate={this.navigate}></data.component>;
+    }
+    return (
       <Suspense fallback={<>loading</>}>
         <data.component navigate={this.navigate} />
       </Suspense>
-    ) : null;
+    );
   }
 }
 
