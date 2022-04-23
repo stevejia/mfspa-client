@@ -9,7 +9,7 @@ interface GroupListProps {
   navigate?: NavigateFunction;
 }
 
-class List extends React.Component<GroupListProps, any> {
+class GroupList extends React.Component<GroupListProps, any> {
   columns: any = [
     {
       title: "页面资源组名称",
@@ -154,4 +154,4 @@ class List extends React.Component<GroupListProps, any> {
   }
 }
 
-export default List;
+export default GroupList;

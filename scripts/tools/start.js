@@ -116,7 +116,7 @@ const start = async () => {
     console.error(err);
   });
   compilerDone(async () => {
-    console.clear();
+    // console.clear();
     await updateDebugConfig();
     console.log(result);
     if (!opened) {

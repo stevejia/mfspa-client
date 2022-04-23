@@ -8,6 +8,7 @@ console.log(35354);
 window.addHistoryListener("historyChange", function (d) {
   console.log("history change", window.history.state);
 });
+debugger;
 ReactDom.render(<App />, document.querySelector("#mfspa-root"));
 console.log(9999);
 if (module?.hot?.accept) {

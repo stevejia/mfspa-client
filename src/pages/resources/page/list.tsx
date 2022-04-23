@@ -63,7 +63,6 @@ class PageList extends React.Component<PageListProps, any> {
   };
 
   componentDidMount(): void {
-    debugger;
     const { location } = window;
     const { href } = location;
     const { groupId, groupName } = parseQueryString(href);
