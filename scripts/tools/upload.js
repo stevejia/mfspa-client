@@ -59,7 +59,6 @@ const uploadFiles = () => {
     //   appName: mfspaConfig.appPattern,
     // };
 
-    console.log(formData);
     const headers = formData.getHeaders();
     // const headers = `multipart/form-data;`;
     request(

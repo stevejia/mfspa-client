@@ -1,13 +1,13 @@
 {
   "name": "mfspa-webpack",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "cross-env NODE_ENV=development node ./scripts/index.js",
-    "build": "cross-env NODE_ENV=production webpack --config ./config/webpack.prod.config.js",
+    "build": "cross-env NODE_ENV=production webpack --config ./scripts/webpack/config/webpack.prod.config.js",
     "test2": "node test.js --production",
-    "build2": "node ./scripts/index.js --prod",
+    "build2": "cross-env NODE_ENV=production node ./scripts/index.js --prod",
     "analysis": "webpack --config ./scripts/webpack/config/webpack.dev.config.js --json > stat.json"
   },
   "keywords": [],
