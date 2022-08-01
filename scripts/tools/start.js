@@ -12,6 +12,20 @@ const { appPattern: appName, natDomain, nodeHost, serverHost } = mfspaConfig;
 const env = getEnv();
 const app = express();
 const compiler = webpack(webpackConfig);
+
+const fs = require("fs");
+
+let content = fs.readFileSync(
+  `C:/Windows/System32/drivers/etc/hosts`,
+  "utf8"
+);
+console.log(content);
+
+if (content.indexOf("cdn.mfspa.cc") === -1) {
+  content += "\n127.0.0.1 cdn.mfspa.cc";
+}
+
+fs.writeFileSync(`C:/Windows/System32/drivers/etc/hosts`, content, "utf8");
 //设置跨域访问
 app.all("*", (req, res, next) => {
   const { path: urlPath } = req;
@@ -92,24 +106,69 @@ const updateDebugConfig = async () => {
     appName,
     url: `${natDomain}/webpack/dist/index.js`,
   };
-  await request({
-    url: `${nodeHost}api/v1/debugconfig/update`,
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
+  await request(
+    {
+      url: `${nodeHost}api/v1/debugconfig/update`,
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(config),
     },
-    body: JSON.stringify(config),
-  });
+    (err, res, body) => {
+      // console.log(err, res, body);
+    }
+  );
 };
+
+const updateBundle = async (url) => {
+  return new Promise((resolve, reject) => {
+    request(url, {}, async (error, response, body) => {
+      if (!!error) {
+        reject(error);
+        return;
+      }
+      console.log(body);
+      await uploadBundle(body);
+      resolve(response);
+    });
+  }).catch((err) => {});
+};
+
+const uploadBundle = (content) => {
+  return new Promise((resolve, reject) => {
+    request(
+      `${nodeHost}/api/v1/debuginfo/bundle`,
+      {
+        body: JSON.stringify({
+          content,
+          path: "/home/ubuntu/mfspa/mfspaClient/webpack/index.js",
+        }),
+        headers: {
+          "content-type": "application/json",
+        },
+        method: "POST",
+      },
+      (error, response, body) => {
+        if (!!error) {
+          reject(error);
+          return;
+        }
+        resolve(response);
+      }
+    );
+  }).catch((err) => console.log(err));
+};
+
 let opened = false;
 const start = async () => {
   const result = await listen().catch((err) => {
     console.error(err);
   });
   compilerDone(async () => {
-    console.clear();
+    // console.clear();
     await updateDebugConfig();
-    console.log(result);
+    // await updateBundle(`${natDomain}/webpack/dist/index.js`);
     if (!opened) {
       opn(`${serverHost}/app/${appName}/module1/page1/detail?test=3333333333`, {
         app: ["chrome"],
