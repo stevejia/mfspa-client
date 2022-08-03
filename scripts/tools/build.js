@@ -10,7 +10,7 @@ const build = () => {
     console.log("打包完成");
     //更新应用版本
     updateVersion();
-    await upload();
+    upload();
   });
 };
 module.exports = build;

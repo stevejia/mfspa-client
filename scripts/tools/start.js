@@ -64,7 +64,7 @@ const compilerDone = (compiler, callback) => {
 const updateDebugConfig = async () => {
   const config = {
     appName,
-    url: `${natDomain}/webpack/dist/index.js`,
+    url: `http://${natDomain}:${port}/webpack/dist/index.js`,
   };
   return new Promise((resolve, reject) => {
     request(
