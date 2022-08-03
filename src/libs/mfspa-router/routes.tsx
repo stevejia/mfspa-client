@@ -65,7 +65,6 @@ class MfspaRoutes extends React.Component<MfspaRoutesPros, MfspaRoutesState> {
     window.removeHistoryListener("testA route change", this.routeChange);
     window.removeEventListener("popstate", this.routeChange, false);
     console.log(14);
-    
   }
   render() {
     const { routes, matchedRoute } = this.state;

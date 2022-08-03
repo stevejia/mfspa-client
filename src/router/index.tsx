@@ -54,24 +54,6 @@ const RenderRoutes = (): React.ReactElement => {
   const routes = allRoutes || ([] as any[]);
   const mfspaRoutes: any[] = genRoutes(routes);
   console.log(mfspaRoutes);
-
-  // return useRoutes(routes);
-
-  // return [
-  //   React.createElement(Router, { key: "router" }, [
-  //     React.createElement(
-  //       Routes,
-  //       { key: "routes" },
-  //       mfspaRoutes?.map((mfspaRoute, index) => {
-  //         return React.createElement(
-  //           Route,
-  //           { ...mfspaRoute, ...{ key: index } },
-  //           []
-  //         );
-  //       })
-  //     ),
-  //   ]),
-  // ];
   return renderRoutes(mfspaRoutes);
 };
 

@@ -7,9 +7,10 @@ interface Module1Page1DetailProps {
 }
 class Module1Page1Detail extends React.Component<Module1Page1DetailProps, any> {
   render() {
+    console.log("测试热更新332223333");
     return (
       <div>
-        Module1 Page1 Detail133344333333aaaaBVBB
+        Module1 Page1123123
         <div
           onClick={() => {
             this.props.navigate(

@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const Webpackbar = require("webpackbar");
 const miniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
 const cwd = process.cwd();
@@ -17,6 +18,10 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /\.md$/,
+        loader: "raw-loader",
+      },
       {
         test: /\.html$/i,
         loader: "html-loader",
@@ -40,18 +45,9 @@ module.exports = {
     extensions: [".ts", ".tsx", ".js", ".jsx", ".css", ".html"],
   },
   plugins: [
+    // new Webpackbar(),
     new miniCssExtractPlugin({
       filename: "css/index.css",
-    }),
-    new HtmlWebpackPlugin({
-      filename: "index.html",
-      template: path.join(cwd, "public/index.html"),
-      inject: true,
-      hash: true,
-      minify: {
-        removeComments: true,
-        collapseWhitespace: false,
-      },
     }),
   ],
 };
