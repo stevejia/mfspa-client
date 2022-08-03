@@ -136,7 +136,7 @@ const start = async () => {
     console.log(result);
     setTimeout(async () => {
       if (!opened) {
-        opn(`${serverHost}/app/${appName}/base/overall`, {
+        opn(`${serverHost}/app/${appName}/privileges/list`, {
           app: ["chrome"],
         });
         opened = true;

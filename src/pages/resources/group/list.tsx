@@ -1,7 +1,17 @@
-import { Button, Form, Input, Modal, Space, Table } from "antd";
+import {
+  Button,
+  Form,
+  FormInstance,
+  Input,
+  message,
+  Modal,
+  Space,
+  Table,
+} from "antd";
 import React from "react";
 import { NavigateFunction } from "react-router-dom";
 import request from "../../../request/request";
+import { clone } from "../../../utils";
 
 import "./list.less";
 
@@ -23,8 +33,8 @@ class GroupList extends React.Component<GroupListProps, any> {
     },
     {
       title: "页面数量",
-      dataIndex: "totalPages",
-      key: "totalPages",
+      dataIndex: "pageCount",
+      key: "pageCount",
       render: (text, record) => (
         <Space size="middle">
           <a onClick={() => this.gotoPageList(record)}>{text}</a>
@@ -38,7 +48,7 @@ class GroupList extends React.Component<GroupListProps, any> {
       key: "action",
       render: (text, record) => (
         <Space size="middle">
-          <a>修改</a>
+          <a onClick={() => this.onToEditGroup(record)}>修改</a>
           <a onClick={() => this.deleteGroup(record)}>删除</a>
         </Space>
       ),
@@ -48,12 +58,16 @@ class GroupList extends React.Component<GroupListProps, any> {
   gotoPageList = (groupInfo) => {
     const { groupId, groupName } = groupInfo;
     this.props.navigate(
-      `/app/privileges/resources/page/list?groupId=${groupId}&groupName=${groupName}`
+      `/app/manage/resources/page/list?groupId=${groupId}&groupName=${groupName}`
     );
   };
 
-  formRef = React.createRef() as any;
-
+  private formRef: FormInstance<any>;
+  private defaultGroupItem = {
+    groupId: null,
+    groupName: "",
+    remark: "",
+  };
   state = {
     groupList: [],
     modalVisible: false,
@@ -71,14 +85,16 @@ class GroupList extends React.Component<GroupListProps, any> {
   };
 
   private onToAddGroup = () => {
-    this.setState({ modalVisible: true });
+    this.setState(
+      {
+        modalVisible: true,
+      },
+      () => this.formRef.setFieldsValue(this.defaultGroupItem)
+    );
   };
 
   private onAddGroup = async () => {
     const values = await this.formRef.validateFields();
-    console.log(values);
-    console.log(this.formRef);
-    console.log("啊啊啊啊啊啊啊啊啊啊啊啊");
     this.saveGroup(values);
   };
 
@@ -96,10 +112,27 @@ class GroupList extends React.Component<GroupListProps, any> {
   };
 
   private deleteGroup = async (groupInfo) => {
-    const { groupId } = groupInfo;
-    await request.del(`groupinfo/delete`, { groupId });
-    this.getGroupList();
+    const { groupId, groupName } = groupInfo;
+    Modal.confirm({
+      content: `确定删除分组[${groupName}]？`,
+      okText: "确定",
+      cancelText: "取消",
+      async onOk() {
+        await request.del(`groupinfo/delete`, { groupId });
+        this.getGroupList();
+      },
+    });
   };
+
+  private onToEditGroup = (groupInfo) => {
+    this.setState(
+      {
+        modalVisible: true,
+      },
+      () => this.formRef.setFieldsValue(groupInfo)
+    );
+  };
+
   render(): React.ReactNode {
     const { groupList, modalVisible } = this.state;
     return (
@@ -121,15 +154,14 @@ class GroupList extends React.Component<GroupListProps, any> {
           //   okButtonProps={{ htmlType: "submit" }}
           onOk={this.onAddGroup}
           onCancel={this.cancelAddGroup}
+          okText="确定"
+          cancelText="取消"
         >
           <Form
             ref={(ref) => (this.formRef = ref)}
             name="basic"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
-            initialValues={{ remember: true }}
-            // onFinish={this.onAddGroup}
-            //   onFinishFailed={onFinishFailed}
             autoComplete="off"
           >
             <Form.Item

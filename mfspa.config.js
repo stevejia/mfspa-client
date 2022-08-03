@@ -1,6 +1,6 @@
 const config = {
   //子应用名称
-  appPattern: "privileges",
+  appPattern: "manage",
   //webpack本地调试模式path
   devDomain: "http://localhost",
   //webpack本地调试hosts映射域名(没有http(s))

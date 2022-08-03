@@ -1,8 +1,9 @@
-import { Button, Form, Input, Modal, Space, Table } from "antd";
+import { Button, Form, FormInstance, Input, Modal, Space, Table } from "antd";
 import React from "react";
 import { NavigateFunction } from "react-router-dom";
 import request from "../../../request/request";
 import { parseQueryString } from "../../../request/requestUtil";
+import { clone } from "../../../utils";
 
 import "./list.less";
 
@@ -17,11 +18,13 @@ class PageList extends React.Component<PageListProps, any> {
       title: "页面名称",
       dataIndex: "pageName",
       key: "pageName",
+      width: 300,
     },
     {
       title: "备注",
       dataIndex: "remark",
       key: "remark",
+      width: 300,
     },
     {
       title: "跳转链接",
@@ -34,13 +37,13 @@ class PageList extends React.Component<PageListProps, any> {
       key: "pageCode",
     },
     {
-      width: 140,
+      width: 160,
       align: "center",
       title: "操作",
       key: "action",
       render: (text, record) => (
         <Space size="middle">
-          <a>修改</a>
+          <a onClick={() => this.onToEditPage(record)}>修改</a>
           <a onClick={() => this.deletePage(record)}>删除</a>
         </Space>
       ),
@@ -54,12 +57,21 @@ class PageList extends React.Component<PageListProps, any> {
     );
   };
 
-  formRef = React.createRef() as any;
+  private formRef: FormInstance<any>;
   private groupId: number = null;
+  private defaultPageItem = {
+    groupId: null,
+    pageId: null,
+    pageName: null,
+    pageUrl: null,
+    pageCode: null,
+    remark: null,
+  };
   state = {
     pageList: [],
     modalVisible: false,
     groupName: null,
+    loading: false,
   };
 
   componentDidMount(): void {
@@ -73,27 +85,36 @@ class PageList extends React.Component<PageListProps, any> {
   }
 
   getPageList = async () => {
+    this.setState({ loading: true });
     const {
       data: { pageList },
     } = await request.get(`pageinfo/get`);
     console.log(pageList);
-    this.setState({ pageList });
+    this.setState({ pageList, loading: false });
   };
 
   private onToAddPage = () => {
-    this.setState({ modalVisible: true }, () => this.formRef.resetFields());
+    this.setState(
+      {
+        modalVisible: true,
+      },
+      () => this.formRef.setFieldsValue(this.defaultPageItem)
+    );
   };
 
   private onAddPage = async () => {
     const values = await this.formRef.validateFields();
-    console.log(values);
-    console.log(this.formRef);
-    console.log("啊啊啊啊啊啊啊啊啊啊啊啊");
     this.savePage(values);
   };
 
+  private onToEditPage = (pageItem) => {
+    this.setState({ modalVisible: true }, () =>
+      this.formRef.setFieldsValue(pageItem)
+    );
+  };
+
   private async savePage(pageData) {
-    pageData.groupId = this.groupId;
+    pageData.groupId = this.groupId || 2;
     // request("", pageData);
     console.log(request);
     await request.post(`pageinfo/update`, pageData);
@@ -102,17 +123,26 @@ class PageList extends React.Component<PageListProps, any> {
   }
 
   private cancelAddPage = () => {
-    this.formRef.resetFields();
-    this.setState({ modalVisible: false });
+    this.setState({
+      modalVisible: false,
+    });
   };
 
   private deletePage = async (pageInfo) => {
-    const { pageId } = pageInfo;
-    await request.del(`pageinfo/delete`, { pageId });
-    this.getPageList();
+    const { pageId, pageName } = pageInfo;
+    Modal.confirm({
+      content: `确定删除页面[${pageName}]？`,
+      okText: "确定",
+      cancelText: "取消",
+      async onOk() {
+        await request.del(`pageinfo/delete`, { pageId });
+        this.getPageList();
+      },
+    });
   };
+
   render(): React.ReactNode {
-    const { pageList, modalVisible, groupName } = this.state;
+    const { pageList, modalVisible, groupName, loading } = this.state;
     return (
       <div className="mfspa-page">
         <div className="mfspa-page-header">
@@ -124,7 +154,10 @@ class PageList extends React.Component<PageListProps, any> {
         <Table
           columns={this.columns}
           dataSource={pageList}
+          rowKey="pageId"
           pagination={false}
+          loading={loading}
+          bordered
         />
         <Modal
           title="添加页面"
@@ -132,15 +165,14 @@ class PageList extends React.Component<PageListProps, any> {
           //   okButtonProps={{ htmlType: "submit" }}
           onOk={this.onAddPage}
           onCancel={this.cancelAddPage}
+          okText="确定"
+          cancelText="取消"
         >
           <Form
             ref={(ref) => (this.formRef = ref)}
             name="basic"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            initialValues={{ remember: true }}
-            // onFinish={this.onAddPage}
-            //   onFinishFailed={onFinishFailed}
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
             autoComplete="off"
           >
             <Form.Item
@@ -159,14 +191,14 @@ class PageList extends React.Component<PageListProps, any> {
               <Input.TextArea />
             </Form.Item>
             <Form.Item
-              label="pageUrl"
+              label="页面链接"
               name="pageUrl"
-              rules={[{ required: true, message: "请输入跳转链接" }]}
+              rules={[{ required: true, message: "请输入页面链接" }]}
             >
               <Input />
             </Form.Item>
             <Form.Item
-              label="pageCode"
+              label="权限code"
               name="pageCode"
               rules={[{ required: true, message: "请输入权限code" }]}
             >
