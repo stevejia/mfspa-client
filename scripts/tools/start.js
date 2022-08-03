@@ -1,4 +1,4 @@
-const webpackConfig = require("../webpack/webpack.config");
+const getWebpackConfig = require("../webpack/webpack.config");
 const mime = require("mime");
 const express = require("express");
 const webpack = require("webpack");
@@ -92,6 +92,10 @@ const updateDebugConfig = async () => {
 
 let opened = false;
 const start = async () => {
+  const result = await listen().catch((err) => {
+    console.error(err);
+  });
+  const webpackConfig = getWebpackConfig({ port });
   const compiler = webpack(webpackConfig);
   const reflectDomain = require("./hosts");
 
@@ -125,11 +129,6 @@ const start = async () => {
     })
   );
   app.use(hotMiddleware(compiler));
-
-  console.log("start");
-  const result = await listen().catch((err) => {
-    console.error(err);
-  });
   compilerDone(compiler, async () => {
     // console.clear();
     reflectDomain(natDomain);

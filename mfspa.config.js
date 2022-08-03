@@ -2,7 +2,7 @@ const config = {
   //子应用名称
   appPattern: "privileges",
   //webpack本地调试模式path
-  devDomain: "http://localhost:8055",
+  devDomain: "http://localhost",
   //webpack本地调试hosts映射域名(没有http(s))
   natDomain: "nat.mfspa.cc",
   //node中间服务层地址
