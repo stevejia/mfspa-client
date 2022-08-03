@@ -1,23 +1,27 @@
 const webpack = require("webpack");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+const Webpackbar = require("webpackbar");
 const miniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
 const cwd = process.cwd();
-const { natDomain } = require("../../../mfspa.config");
+const { devDomain } = require("../../../mfspa.config");
 module.exports = {
   entry: [
     "webpack/hot/dev-server",
-    `webpack-hot-middleware/client?path=${natDomain}/__webpack_hmr`,
+    `webpack-hot-middleware/client?path=${devDomain}/__webpack_hmr`,
     "./src/index.js",
   ],
   mode: "development",
   output: {
     filename: "index.js",
     path: path.join(cwd, "/dist"),
-    publicPath: `${natDomain}/webpack/dist`,
+    publicPath: `${devDomain}/webpack/dist`,
   },
   module: {
     rules: [
+      {
+        test: /\.md$/,
+        loader: "raw-loader",
+      },
       {
         test: /\.js|jsx|ts|tsx$/,
         exclude: /node_modules/,
@@ -37,6 +41,7 @@ module.exports = {
     extensions: [".ts", ".tsx", ".js", ".jsx", ".css", ".html"],
   },
   plugins: [
+    new Webpackbar(),
     new miniCssExtractPlugin({
       filename: "css/index.css",
     }),

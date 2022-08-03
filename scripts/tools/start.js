@@ -8,55 +8,16 @@ const request = require("request");
 const opn = require("opn");
 const mfspaConfig = require("../../mfspa.config");
 const getEnv = require("../tools/getEnv");
-const { appPattern: appName, natDomain, nodeHost, serverHost } = mfspaConfig;
 const env = getEnv();
 const app = express();
-const compiler = webpack(webpackConfig);
+const {
+  appPattern: appName,
+  devDomain,
+  natDomain,
+  nodeHost,
+  serverHost,
+} = mfspaConfig;
 
-const fs = require("fs");
-
-let content = fs.readFileSync(
-  `C:/Windows/System32/drivers/etc/hosts`,
-  "utf8"
-);
-console.log(content);
-
-if (content.indexOf("cdn.mfspa.cc") === -1) {
-  content += "\n127.0.0.1 cdn.mfspa.cc";
-}
-
-fs.writeFileSync(`C:/Windows/System32/drivers/etc/hosts`, content, "utf8");
-//设置跨域访问
-app.all("*", (req, res, next) => {
-  const { path: urlPath } = req;
-  const isHmr = urlPath?.indexOf("__webpack_hmr") > -1;
-  const mimeType = mime.getType(urlPath);
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-  res.header("X-Powered-By", " 3.2.1");
-  if (isHmr) {
-    res.header("Content-Type", "text/event-stream");
-  } else {
-    if (!!mimeType) {
-      res.header("Content-Type", `${mimeType};"charset=utf-8"`);
-    } else {
-      res.header("Content-Type", "text/html");
-    }
-  }
-
-  next();
-});
-
-app.use(
-  devMiddleware(compiler, {
-    // publicPath: webpackConfig.output.publicPath,
-    stats: {
-      colors: true,
-    },
-  })
-);
-app.use(hotMiddleware(compiler));
 let tryTimes = 10;
 const duration = 1000;
 let port = 8055;
@@ -84,7 +45,7 @@ const listen = () => {
   });
 };
 
-const compilerDone = (callback) => {
+const compilerDone = (compiler, callback) => {
   compiler.hooks.done.tap("done", (stats) => {
     if (
       stats.compilation.errors &&
@@ -94,7 +55,6 @@ const compilerDone = (callback) => {
       console.error(stats.compilation.errors);
       process.exit(1);
     }
-    console.log("build sucess");
     setTimeout(() => {
       callback && callback();
     }, duration);
@@ -106,75 +66,82 @@ const updateDebugConfig = async () => {
     appName,
     url: `${natDomain}/webpack/dist/index.js`,
   };
-  await request(
-    {
-      url: `${nodeHost}api/v1/debugconfig/update`,
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(config),
-    },
-    (err, res, body) => {
-      // console.log(err, res, body);
-    }
-  );
-};
-
-const updateBundle = async (url) => {
-  return new Promise((resolve, reject) => {
-    request(url, {}, async (error, response, body) => {
-      if (!!error) {
-        reject(error);
-        return;
-      }
-      console.log(body);
-      await uploadBundle(body);
-      resolve(response);
-    });
-  }).catch((err) => {});
-};
-
-const uploadBundle = (content) => {
   return new Promise((resolve, reject) => {
     request(
-      `${nodeHost}/api/v1/debuginfo/bundle`,
       {
-        body: JSON.stringify({
-          content,
-          path: "/home/ubuntu/mfspa/mfspaClient/webpack/index.js",
-        }),
+        url: `${nodeHost}api/v1/debuginfo/update`,
+        method: "POST",
         headers: {
           "content-type": "application/json",
         },
-        method: "POST",
+        body: JSON.stringify(config),
       },
-      (error, response, body) => {
-        if (!!error) {
-          reject(error);
+      (err, res) => {
+        if (err) {
+          reject(err);
           return;
         }
-        resolve(response);
+        resolve(res);
       }
     );
-  }).catch((err) => console.log(err));
+  }).catch((error) => {
+    console.log(error);
+  });
 };
 
 let opened = false;
 const start = async () => {
+  const compiler = webpack(webpackConfig);
+  const reflectDomain = require("./hosts");
+
+  //设置跨域访问
+  app.all("*", (req, res, next) => {
+    const { path: urlPath } = req;
+    const isHmr = urlPath?.indexOf("__webpack_hmr") > -1;
+    const mimeType = mime.getType(urlPath);
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+    res.header("X-Powered-By", " 3.2.1");
+    if (isHmr) {
+      res.header("Content-Type", "text/event-stream");
+    } else {
+      if (!!mimeType) {
+        res.header("Content-Type", `${mimeType};"charset=utf-8"`);
+      } else {
+        res.header("Content-Type", "text/html");
+      }
+    }
+    next();
+  });
+
+  app.use(
+    devMiddleware(compiler, {
+      // publicPath: webpackConfig.output.publicPath,
+      stats: {
+        colors: true,
+      },
+    })
+  );
+  app.use(hotMiddleware(compiler));
+
+  console.log("start");
   const result = await listen().catch((err) => {
     console.error(err);
   });
-  compilerDone(async () => {
+  compilerDone(compiler, async () => {
     // console.clear();
+    reflectDomain(natDomain);
     await updateDebugConfig();
-    // await updateBundle(`${natDomain}/webpack/dist/index.js`);
-    if (!opened) {
-      opn(`${serverHost}/app/${appName}/module1/page1/detail?test=3333333333`, {
-        app: ["chrome"],
-      });
-      opened = true;
-    }
+    console.log(result);
+    setTimeout(async () => {
+      if (!opened) {
+        opn(`${serverHost}/app/${appName}/base/overall`, {
+          app: ["chrome"],
+        });
+        opened = true;
+      }
+    }, duration);
   });
 };
 module.exports = start;

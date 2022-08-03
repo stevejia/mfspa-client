@@ -2,22 +2,12 @@ const mfspaMenus = [
   {
     name: "概况",
     key: "summary",
-    url: "https://www.baidu.com/",
+    url: "/app/testA/base/overall",
   },
   {
-    name: "模块1",
+    name: "快速入门",
     key: "module1",
-    subMenus: [
-      {
-        key: "page1",
-        name: "页面1",
-        url: "/app/testA/module1/page1/list",
-        relatedUrls: [
-          "/app/testA/module1/page1/manage",
-          "/app/testA/module1/page1/detail",
-        ],
-      },
-    ],
+    url: "/app/testA/base/quickstart",
   },
 ];
 
