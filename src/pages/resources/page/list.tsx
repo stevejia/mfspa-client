@@ -67,6 +67,14 @@ class PageList extends React.Component<PageListProps, any> {
     pageCode: null,
     remark: null,
   };
+  private editPageItem = {
+    groupId: null,
+    pageId: null,
+    pageName: null,
+    pageUrl: null,
+    pageCode: null,
+    remark: null,
+  };
   state = {
     pageList: [],
     modalVisible: false,
@@ -100,6 +108,7 @@ class PageList extends React.Component<PageListProps, any> {
       },
       () => this.formRef.setFieldsValue(this.defaultPageItem)
     );
+    this.editPageItem = clone(this.defaultPageItem);
   };
 
   private onAddPage = async () => {
@@ -111,10 +120,11 @@ class PageList extends React.Component<PageListProps, any> {
     this.setState({ modalVisible: true }, () =>
       this.formRef.setFieldsValue(pageItem)
     );
+    this.editPageItem = pageItem;
   };
 
   private async savePage(pageData) {
-    pageData.groupId = this.groupId || 2;
+    pageData = { ...this.editPageItem, ...pageData, groupId: this.groupId };
     // request("", pageData);
     console.log(request);
     await request.post(`pageinfo/update`, pageData);
@@ -134,7 +144,7 @@ class PageList extends React.Component<PageListProps, any> {
       content: `确定删除页面[${pageName}]？`,
       okText: "确定",
       cancelText: "取消",
-      async onOk() {
+      onOk: async () => {
         await request.del(`pageinfo/delete`, { pageId });
         this.getPageList();
       },
@@ -161,6 +171,7 @@ class PageList extends React.Component<PageListProps, any> {
         />
         <Modal
           title="添加页面"
+          width={1000}
           visible={modalVisible}
           //   okButtonProps={{ htmlType: "submit" }}
           onOk={this.onAddPage}
@@ -171,8 +182,8 @@ class PageList extends React.Component<PageListProps, any> {
           <Form
             ref={(ref) => (this.formRef = ref)}
             name="basic"
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 18 }}
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 20 }}
             autoComplete="off"
           >
             <Form.Item

@@ -11,6 +11,7 @@ const allRoutes: MfspaRouteObject[] = [
   {
     path: routePrefix,
     children: [resourcesRoutes],
+    // children: [],
   },
 ];
 

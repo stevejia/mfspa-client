@@ -16,7 +16,7 @@ const resourcesRoutes: MfspaRouteObject = {
         {
           path: "/list",
           name: "页面资源组",
-          component: dynamicImport(GroupList),
+          component: lazy(() => import("../pages/resources/group/list")),
         },
       ],
     },
@@ -26,7 +26,7 @@ const resourcesRoutes: MfspaRouteObject = {
         {
           path: "/list",
           name: "页面列表",
-          component: dynamicImport(PageList),
+          component: lazy(() => import("../pages/resources/page/list")),
         },
       ],
     },
@@ -36,7 +36,7 @@ const resourcesRoutes: MfspaRouteObject = {
         {
           path: "/list",
           name: "菜单列表",
-          component: dynamicImport(Menu),
+          component: lazy(() => import("../pages/resources/menu")),
         },
       ],
     },

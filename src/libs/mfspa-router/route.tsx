@@ -17,9 +17,9 @@ class MfspaRoute extends React.Component<MfspaRouteProps, any> {
     if (!matched) {
       return null;
     }
-    if (env === "development") {
-      return <data.component navigate={this.navigate}></data.component>;
-    }
+    // if (env === "development") {
+    //   return <data.component navigate={this.navigate}></data.component>;
+    // }
     return (
       <Suspense fallback={<>loading</>}>
         <data.component navigate={this.navigate} />

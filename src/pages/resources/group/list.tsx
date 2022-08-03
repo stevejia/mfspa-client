@@ -68,6 +68,11 @@ class GroupList extends React.Component<GroupListProps, any> {
     groupName: "",
     remark: "",
   };
+  private editGroupItem = {
+    groupId: null,
+    groupName: "",
+    remark: "",
+  };
   state = {
     groupList: [],
     modalVisible: false,
@@ -91,6 +96,7 @@ class GroupList extends React.Component<GroupListProps, any> {
       },
       () => this.formRef.setFieldsValue(this.defaultGroupItem)
     );
+    this.editGroupItem = clone(this.defaultGroupItem);
   };
 
   private onAddGroup = async () => {
@@ -99,6 +105,8 @@ class GroupList extends React.Component<GroupListProps, any> {
   };
 
   private async saveGroup(groupData) {
+    groupData = { ...this.editGroupItem, ...groupData };
+    delete groupData.pageCount;
     // request("", groupData);
     console.log(request);
     await request.post(`groupinfo/update`, groupData);
@@ -117,7 +125,7 @@ class GroupList extends React.Component<GroupListProps, any> {
       content: `确定删除分组[${groupName}]？`,
       okText: "确定",
       cancelText: "取消",
-      async onOk() {
+      onOk: async () => {
         await request.del(`groupinfo/delete`, { groupId });
         this.getGroupList();
       },
@@ -131,6 +139,7 @@ class GroupList extends React.Component<GroupListProps, any> {
       },
       () => this.formRef.setFieldsValue(groupInfo)
     );
+    this.editGroupItem = clone(groupInfo);
   };
 
   render(): React.ReactNode {
@@ -147,6 +156,7 @@ class GroupList extends React.Component<GroupListProps, any> {
           columns={this.columns}
           dataSource={groupList}
           pagination={false}
+          rowKey="groupId"
         />
         <Modal
           title="添加页面资源组"
