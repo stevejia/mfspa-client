@@ -2,12 +2,12 @@ const mfspaMenus = [
   {
     name: "概况",
     key: "summary",
-    urls: "/app/basis/base/overall",
+    url: "/app/basis/base/overall",
   },
   {
     name: "快速入门",
     key: "module1",
-    urls: "/app/basis/base/quickstart",
+    url: "/app/basis/base/quickstart",
   },
   {
     name: "资源组",
@@ -16,15 +16,14 @@ const mfspaMenus = [
       {
         key: "groupList",
         name: "页面资源",
-        urls: [
-          "/app/manage/resources/group/list",
-          "/app/manage/resources/page/list",
-        ],
+        url: "/app/manage/resources/group/list",
+        relatedUrls: ["/app/manage/resources/page/list"],
       },
       {
         key: "menuList",
         name: "菜单配置",
-        urls: ["/app/manage/resources/menu/list"],
+        url: "/app/manage/resources/menu/list",
+        relatedUrls: [],
       },
     ],
   },

@@ -11,7 +11,7 @@ class MfspaRoute extends React.Component<MfspaRouteProps, any> {
   };
 
   render() {
-    const env = process.env.NODE_ENV;
+    // const env = process.env.NODE_ENV;
     const { data, matched } = this.props;
     console.log("route data", data);
     if (!matched) {

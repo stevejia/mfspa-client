@@ -5,7 +5,7 @@ import GroupList from "../pages/resources/group/list";
 import Menu from "../pages/resources/menu";
 import PageList from "../pages/resources/page/list";
 
-console.log(process.env.NODE_ENV);
+// console.log(process.env.NODE_ENV);
 
 const resourcesRoutes: MfspaRouteObject = {
   path: "/resources",
@@ -16,7 +16,9 @@ const resourcesRoutes: MfspaRouteObject = {
         {
           path: "/list",
           name: "页面资源组",
-          component: lazy(() => import("../pages/resources/group/list")),
+          component: lazy(
+            async () => await import("../pages/resources/group/list")
+          ),
         },
       ],
     },
@@ -26,7 +28,9 @@ const resourcesRoutes: MfspaRouteObject = {
         {
           path: "/list",
           name: "页面列表",
-          component: lazy(() => import("../pages/resources/page/list")),
+          component: lazy(
+            async () => await import("../pages/resources/page/list")
+          ),
         },
       ],
     },
@@ -36,7 +40,7 @@ const resourcesRoutes: MfspaRouteObject = {
         {
           path: "/list",
           name: "菜单列表",
-          component: lazy(() => import("../pages/resources/menu")),
+          component: lazy(async () => await import("../pages/resources/menu")),
         },
       ],
     },

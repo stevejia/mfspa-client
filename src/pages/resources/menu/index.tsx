@@ -1,12 +1,15 @@
 import {
   Button,
+  Checkbox,
   Form,
   FormInstance,
   Input,
+  message,
   Modal,
   Select,
   Space,
   Table,
+  Tooltip,
   Tree,
 } from "antd";
 import React from "react";
@@ -23,11 +26,17 @@ import {
   AppstoreOutlined,
   AudioOutlined,
   DownOutlined,
-  PlusOutlined,
-  MinusOutlined,
+  // PlusOutlined,
+  // MinusOutlined,
+  BarsOutlined,
+  EditTwoTone,
+  DeleteTwoTone,
+  PlusSquareTwoTone,
+  CopyTwoTone,
 } from "@ant-design/icons";
 import "./index.less";
 import { DataNode } from "antd/lib/tree";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
 
 interface MenuProps {
   navigate?: NavigateFunction;
@@ -48,16 +57,17 @@ interface MenuState {
 }
 
 class Menu extends React.Component<MenuProps, MenuState> {
-  // private icons = {
-  //   AccountBookOutlined: <AccountBookOutlined />,
-  //   AimOutlined: <AimOutlined />,
-  //   AlertOutlined: <AlertOutlined />,
-  //   ApartmentOutlined: <ApartmentOutlined />,
-  //   ApiOutlined: <ApiOutlined />,
-  //   AppstoreAddOutlined: <AppstoreAddOutlined />,
-  //   AppstoreOutlined: <AppstoreOutlined />,
-  //   AudioOutlined: <AudioOutlined />,
-  // };
+  private icons = {
+    AccountBookOutlined: <AccountBookOutlined />,
+    AimOutlined: <AimOutlined />,
+    AlertOutlined: <AlertOutlined />,
+    ApartmentOutlined: <ApartmentOutlined />,
+    ApiOutlined: <ApiOutlined />,
+    AppstoreAddOutlined: <AppstoreAddOutlined />,
+    AppstoreOutlined: <AppstoreOutlined />,
+    AudioOutlined: <AudioOutlined />,
+    BarsOutlined: <BarsOutlined />,
+  };
 
   gotoGroupList = (menuInfo) => {
     const { menuId, menuName } = menuInfo;
@@ -93,6 +103,7 @@ class Menu extends React.Component<MenuProps, MenuState> {
 
   private formRef: FormInstance<any>;
   private addPageMenuKey: string | number;
+  private menuList;
   state = {
     modalVisible: false,
     hoverNodeKey: null,
@@ -116,11 +127,21 @@ class Menu extends React.Component<MenuProps, MenuState> {
 
   getMenu = async () => {
     const {
-      data: { treeNodes },
+      data: { treeNodes, menuList },
     } = await request.get(`menuinfo/get`);
     console.log(treeNodes);
+    this.processTreeNodeIcon(treeNodes);
     this.setState({ treeData: treeNodes });
+    this.menuList = menuList;
   };
+
+  private processTreeNodeIcon(treeNodes: DataNode[]) {
+    treeNodes.forEach((node) => {
+      console.log(node.icon);
+      node.icon = this.icons[node.icon as string];
+      this.processTreeNodeIcon(node.children);
+    });
+  }
 
   private getMenuPages = async () => {
     const {
@@ -140,6 +161,22 @@ class Menu extends React.Component<MenuProps, MenuState> {
     );
   };
 
+  private onToEditMenu = (node: DataNode) => {
+    // console.log(menuItem);
+    const menuItem = this.menuList.find((menu) => menu.menuId === node.key);
+    if (menuItem.pId) {
+      const parentMenuItem = this.menuList.find(
+        (menu) => menu.menuId === menuItem.pId
+      );
+      menuItem.pName = parentMenuItem?.menuName;
+    }
+    if (!!menuItem) {
+      this.setState({ modalVisible: true, menuItem }, () => {
+        this.formRef.setFieldsValue(menuItem);
+      });
+    }
+  };
+
   private onAddMenu = async () => {
     const values = await this.formRef.validateFields();
     this.saveMenu(values);
@@ -148,6 +185,7 @@ class Menu extends React.Component<MenuProps, MenuState> {
   private async saveMenu(menuData) {
     menuData = { ...this.state.menuItem, ...menuData };
     await request.post(`menuinfo/update`, menuData);
+    message.success("保存成功");
     this.setState({ modalVisible: false });
     this.getMenu();
   }
@@ -197,7 +235,8 @@ class Menu extends React.Component<MenuProps, MenuState> {
 
   private saveMenuPages = async (saveData) => {
     await request.post("menuinfo/updatepages", { menuPages: saveData });
-    this.getMenu();
+    // this.getMenu();
+    this.getMenuPages();
   };
 
   private cancelAddMenuPage = () => {
@@ -211,6 +250,25 @@ class Menu extends React.Component<MenuProps, MenuState> {
     } = await request.get(`pageinfo/get`);
     console.log(pageList);
     this.setState({ pageList, loading: false });
+  };
+
+  private toggleChecked = async (e: CheckboxChangeEvent, pageItem) => {
+    const {
+      target: { checked },
+    } = e;
+    pageItem.checked = checked ? 1 : 0;
+    await request.post("menuinfo/updatepages", { menuPages: pageItem });
+    message.success("修改成功！");
+  };
+
+  private setDefault = (pageItem, pages) => {
+    pages.forEach((page) => {
+      page.isDefault = 0;
+    });
+    pageItem.isDefault = 1;
+    pageItem.checked = 1;
+
+    this.saveMenuPages(pages);
   };
 
   render(): React.ReactNode {
@@ -240,6 +298,7 @@ class Menu extends React.Component<MenuProps, MenuState> {
         name: record.pageId,
       }),
     };
+
     return (
       <div className="mfspa-menu">
         <div className="mfspa-menu-header">
@@ -276,25 +335,65 @@ class Menu extends React.Component<MenuProps, MenuState> {
                   >
                     {node.key === hoverNodeKey && level < 2 && (
                       <>
-                        <PlusOutlined onClick={() => this.onToAddMenu(node)} />
-                        <MinusOutlined />
+                        <PlusSquareTwoTone
+                          className="m-l-md"
+                          onClick={() => this.onToAddMenu(node)}
+                        />
+                        <EditTwoTone
+                          className="m-l-md"
+                          onClick={() => this.onToEditMenu(node)}
+                        />
+
+                        <DeleteTwoTone className="m-l-md m-r-xs" />
                       </>
                     )}
                     {node.key === hoverNodeKey && level >= 2 && (
                       <>
-                        <Button
+                        <EditTwoTone
+                          className="m-l-md"
+                          onClick={() => this.onToEditMenu(node)}
+                        />
+                        <CopyTwoTone
+                          className="m-l-md m-r-xs"
                           onClick={() => this.onToAddMenuPage(node)}
-                          type="default"
-                          size="small"
-                        >
-                          添加页面
-                        </Button>
+                        />
                       </>
                     )}
                     {!!pages?.length && (
-                      <div>
+                      <div
+                        className="menu-pages"
+                        onMouseOver={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                      >
                         {pages.map((p) => (
-                          <span key={p.pageId}>{p.pageName}</span>
+                          <Checkbox
+                            key={p.menuPageId}
+                            checked={!!p.checked}
+                            onChange={(e) => this.toggleChecked(e, p)}
+                          >
+                            <Tooltip
+                              placement="right"
+                              title={
+                                <Button
+                                  size="small"
+                                  onClick={() => this.setDefault(p, pages)}
+                                >
+                                  设为默认
+                                </Button>
+                              }
+                            >
+                              <span className="menu-page-item">
+                                {!!p.isDefault && (
+                                  <span className="menu-page-default">
+                                    [默认]
+                                  </span>
+                                )}
+                                {p.pageName}
+                              </span>
+                            </Tooltip>
+                          </Checkbox>
                         ))}
                       </div>
                     )}
@@ -336,7 +435,7 @@ class Menu extends React.Component<MenuProps, MenuState> {
             >
               <Input />
             </Form.Item>
-            {/* <Form.Item
+            <Form.Item
               label="菜单图标"
               name="icon"
               rules={[{ required: true, message: "请选择菜单图标" }]}
@@ -346,13 +445,13 @@ class Menu extends React.Component<MenuProps, MenuState> {
                   const Comp = this.icons?.[ico] as any;
                   return (
                     <Select.Option key={ico}>
-                      <Comp />
+                      {Comp}
                       {ico}
                     </Select.Option>
                   );
                 })}
               </Select>
-            </Form.Item> */}
+            </Form.Item>
 
             <Form.Item
               label="备注"

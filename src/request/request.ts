@@ -1,4 +1,4 @@
-import { getQueryString, queryStringify } from "./requestUtil";
+import { cleanParams, getQueryString, queryStringify } from "./requestUtil";
 import config from "./baseUrl";
 
 interface MfspaRequestOptions {
@@ -18,11 +18,11 @@ class MfspaRequest {
       try {
         switch (method) {
           case "POST":
+            cleanParams(params);
             const postRes = await fetch(url, {
               method,
               headers: {
-                "Content-Type":
-                  "application/x-www-form-urlencoded",
+                "Content-Type": "application/x-www-form-urlencoded",
               },
               mode: "cors",
               body: queryStringify(params),

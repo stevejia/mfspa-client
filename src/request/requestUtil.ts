@@ -128,3 +128,29 @@ const getKeys = (key) => {
 const isArray = (keys) => {
   return keys.length === 2;
 };
+
+const cleanParams = (obj) => {
+  const objType = getObjectType(obj);
+  if (objType === "Array") {
+    obj.forEach((item) => {
+      cleanParams(item);
+    });
+  } else if (objType === "Object") {
+    Object.keys(obj).forEach((key) => {
+      const propObj = obj[key];
+      const propType = getObjectType(propObj);
+      if (propType === "Undefined" || propType === "Null") {
+        delete obj[key];
+      } else {
+        cleanParams(propObj);
+      }
+    });
+  }
+};
+
+const getObjectType = (obj) => {
+  const typeString = Object.prototype.toString.call(obj);
+  return typeString.slice(8, -1);
+};
+
+export { cleanParams };
