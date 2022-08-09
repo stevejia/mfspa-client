@@ -44,6 +44,16 @@ const resourcesRoutes: MfspaRouteObject = {
         },
       ],
     },
+    {
+      path: "/version",
+      children: [
+        {
+          path: "/publish",
+          name: "版本发布",
+          component: lazy(async () => await import("../pages/resources/version/publish")),
+        },
+      ],
+    },
   ],
 };
 

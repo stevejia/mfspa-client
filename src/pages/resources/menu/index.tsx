@@ -35,9 +35,11 @@ import {
   CopyTwoTone,
 } from "@ant-design/icons";
 import "./index.less";
-import { DataNode } from "antd/lib/tree";
+import { DataNode, EventDataNode } from "antd/lib/tree";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
-
+import { NodeDragEventParams } from "rc-tree/lib/contextTypes";
+import TreeDataType from "rc-tree/lib/Tree";
+import { Key } from "rc-table/lib/interface";
 interface MenuProps {
   navigate?: NavigateFunction;
   location?: Location;
@@ -104,6 +106,8 @@ class Menu extends React.Component<MenuProps, MenuState> {
   private formRef: FormInstance<any>;
   private addPageMenuKey: string | number;
   private menuList;
+  private targetNode: { level: number; dragOverGapBottom: boolean } & DataNode;
+  private direction: string;
   state = {
     modalVisible: false,
     hoverNodeKey: null,
@@ -184,7 +188,11 @@ class Menu extends React.Component<MenuProps, MenuState> {
 
   private async saveMenu(menuData) {
     menuData = { ...this.state.menuItem, ...menuData };
-    await request.post(`menuinfo/update`, menuData);
+    this._saveMenu(menuData);
+  }
+
+  private async _saveMenu(menuData) {
+    await request.post(`menuinfo/update`, { menuData });
     message.success("保存成功");
     this.setState({ modalVisible: false });
     this.getMenu();
@@ -271,6 +279,84 @@ class Menu extends React.Component<MenuProps, MenuState> {
     this.saveMenuPages(pages);
   };
 
+  private onDragEnter = (info: { level?: number } & DataNode) => {};
+
+  private onDragLeave = (info: NodeDragEventParams<DataNode>) => {
+    let { node } = info;
+    const nodeData = node as unknown as {
+      level: number;
+      dragOverGapBottom: boolean;
+    } & DataNode;
+    // nodeData.level = 1;
+    this.targetNode = nodeData;
+  };
+
+  private onDrop = (
+    info: NodeDragEventParams<DataNode> & {
+      dragNode: EventDataNode<TreeDataType & { level: number }>;
+      dragNodesKeys: Key[];
+      dropPosition: number;
+      dropToGap: boolean;
+    }
+  ) => {
+    console.log(this.targetNode, "on drop");
+    const { dragOverGapBottom, key, level: dropLevel } = this.targetNode;
+    const {
+      dragNode: { level: dragLevel, key: dKey },
+    } = info;
+
+    if (dropLevel !== dragLevel) {
+      console.warn("不是同级，不能拖拽");
+      return;
+    }
+    console.log("direction", dragOverGapBottom);
+    let dropIndex = this.findIndex(key, dragOverGapBottom);
+    let dragIndex = this.findIndex(dKey, dragOverGapBottom);
+    if (dropIndex > dragIndex) {
+      dropIndex--;
+    }
+    if (dragOverGapBottom) {
+      dropIndex++;
+    }
+
+    const [dragMenu] = this.menuList.splice(dragIndex, 1);
+    this.menuList.splice(dropIndex, 0, dragMenu);
+    console.log(this.menuList);
+    this.rePriority(this.menuList);
+    this._saveMenu(this.menuList);
+  };
+
+  private rePriority(menuList: Array<any>) {
+    const menuLen = menuList.length;
+    for (let i = menuLen - 1; i >= 0; i--) {
+      menuList[i].priority = menuLen - i;
+    }
+    // this.saveMenu(menuList);
+    // console.log(menuList);
+  }
+
+  private findIndex = (key: string | number, updir: boolean) => {
+    const { menuList } = this;
+    const index = menuList.findIndex((menu) => {
+      return menu.menuId === key;
+    });
+    return index;
+  };
+
+  private _findParentNode(
+    key: string | number,
+    nodes: ({ level: number } & DataNode)[],
+    node?: { level: number } & DataNode
+  ) {
+    const fNode = nodes.find((n) => n.key === key);
+    if (!!node || !!fNode) {
+      node = node || fNode;
+    }
+    nodes.forEach((n) => {
+      return this._findParentNode(key, n.children as any, node);
+    });
+  }
+
   render(): React.ReactNode {
     const {
       treeData,
@@ -312,6 +398,14 @@ class Menu extends React.Component<MenuProps, MenuState> {
           </Button>
         </div>
         <Tree
+          selectable={false}
+          draggable={true}
+          // onDragStart={(info) => {
+          //   console.log(info);
+          // }}
+          onDrop={this.onDrop}
+          onDragEnter={(info) => this.onDragEnter(info as any)}
+          onDragLeave={(info) => this.onDragLeave(info as any)}
           showIcon
           defaultExpandAll
           defaultSelectedKeys={["0-0-0"]}

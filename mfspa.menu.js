@@ -25,6 +25,12 @@ const mfspaMenus = [
         url: "/app/manage/resources/menu/list",
         relatedUrls: [],
       },
+      {
+        key: "versionPublish",
+        name: "版本管理",
+        url: "/app/manage/resources/version/publish",
+        relatedUrls: [],
+      },
     ],
   },
 ];
