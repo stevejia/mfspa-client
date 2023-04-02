@@ -3,12 +3,14 @@ import config from "../../mfspa.config";
 import React from "react";
 import { renderRoutes } from "../libs/mfspa-router";
 import { MfspaRouteObject } from "../libs/mfspa-router/type";
+import htmlRoutes from "./router.html";
+import articleRoutes from "./router.article";
 
 const routePrefix = `/app/${config.appPattern}`;
 const allRoutes: MfspaRouteObject[] = [
   {
     path: routePrefix,
-    children: [baseRoutes],
+    children: [baseRoutes, htmlRoutes, articleRoutes],
   },
 ];
 
