@@ -8,6 +8,16 @@ const articleRoutes: MfspaRouteObject = {
       path: "publish",
       name: "publish",
       component: lazy(() => import("../pages/article/publish")),
+    },
+    {
+      path: "tagList",
+      name: "tagList",
+      component: lazy(() => import("../pages/article/tagList")),
+    },
+    {
+      path: "detail",
+      name: "detail",
+      component: lazy(() => import("../pages/article/detail")),
     }
   ],
 };

@@ -124,7 +124,7 @@ const _formatDateOrTime = (date, fmt="yyyy-MM-dd") => {
 export const formatDate =(date, fmt="yyyy-MM-dd") => {
   return _formatDateOrTime(date, fmt);
 }
-export const formateTime = (date, fmt) => {
+export const formatTime = (date, fmt="yyyy-MM-dd hh:mm:ss") => {
   return _formatDateOrTime(date, fmt);
 }
 

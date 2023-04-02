@@ -12,19 +12,30 @@ import MfspaMarkdownEditor from "../../components/mfspa-markdown/editor";
 import { SendOutlined } from "@ant-design/icons";
 import "./publish.less";
 import request from "../../request/request";
+import { parseQueryString } from "../../request/requestUtil";
+import ArticleInfoModel, { defaultInfoModel } from "./types";
 const ArticlePublish = (props) => {
   const [articleTags, setArticleTags] = useState<
     { name: string; key: string }[]
   >([]);
+  const [articleInfo, setArticleInfo] = useState<ArticleInfoModel>(defaultInfoModel);
   useEffect(() => {
+    const params = parseQueryString(location.href);
+    console.log(params);
+    if (params) {
+      getArticleById(params);
+    }
     getMenus();
   }, []);
+
+ 
+
   const getMenus = async () => {
     const {
       data: { menuList },
     } = await request.get(`menuinfo/getmenus`);
     const articleTags = menuList.find(
-      (menu) => menu.name === "前端知识梳理"
+      (menu) => menu.name.indexOf("前端梳理") > -1 
     ).subMenus;
     setArticleTags(articleTags);
     console.log(articleTags);
@@ -41,7 +52,17 @@ const ArticlePublish = (props) => {
 
   const onSaveArticle = async () => {
     const data = await formRef.current.validateFields();
-    console.log(data);
+    console.log(data, {...articleInfo, ...data});
+    request.post('articleInfo/update', {...articleInfo, ...data});
+  };
+
+  const getArticleById = async (params: any) => {
+    const {
+      data: { articleInfo },
+    } = await request.get("articleinfo/get", params);
+    console.log(articleInfo);
+    setArticleInfo(articleInfo);
+    formRef.current.setFieldsValue(articleInfo);
   };
 
   return (
@@ -56,7 +77,7 @@ const ArticlePublish = (props) => {
         name="basic"
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 24 }}
-        initialValues={{ type: 1 }}
+        initialValues={articleInfo}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
         autoComplete="off"
@@ -101,7 +122,7 @@ const ArticlePublish = (props) => {
         >
           <MfspaMarkdownEditor
             onEditorChange={onEditorChange}
-            content="# 我是一级标题\n\n~~~js\n  console.log(3333);\n~~~"
+            content={articleInfo.content}
           ></MfspaMarkdownEditor>
         </Form.Item>
       </Form>

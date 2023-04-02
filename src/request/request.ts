@@ -13,13 +13,23 @@ class MfspaRequest {
     params?: any,
     options?: MfspaRequestOptions
   ) {
-    if(!/^((ht|f)tps?:\/\/)?[\w-]+(\.[\w-]+)+:\d{1,5}\/?$/.test(url)) {
+    if (!/^((ht|f)tps?:\/\/)?[\w-]+(\.[\w-]+)+:\d{1,5}\/?$/.test(url)) {
       url = baseUrl + url;
     }
     return new Promise(async (resolve, reject) => {
       try {
         switch (method) {
           case "POST":
+            let postRes;
+            postRes = await fetch(url, {
+              method: "POST",
+              body: JSON.stringify(params),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+            console.log(postRes);
+
             break;
           case "GET":
             const urlWithQuery = getQueryString(url, params);
@@ -90,7 +100,9 @@ class MfspaRequest {
       })
       .finally(() => console.log("finally todo"));
   }
-  post(url, params, options) {}
+  post(url, params, options?: any) {
+    return this.request("POST", url, params, options);
+  }
   get(url, params?: any, options?: MfspaRequestOptions): Promise<any> {
     return this.request("GET", url, params, options);
   }

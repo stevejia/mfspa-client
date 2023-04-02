@@ -24,6 +24,11 @@ const mfspaMenus = [
     key: "articlePublish",
     url: "/app/frontend/article/publish",
   },
+  {
+    name: "分类文章列表",
+    key: "articleTagList",
+    url: "/app/frontend/article/tagList",
+  },
 ];
 
 export default mfspaMenus;
